@@ -19,18 +19,22 @@ use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
+mod cli;
 mod types;
 
 fn main() -> types::ConcatResult<()> {
     // initialize for rusoto
     env_logger::init();
 
-    // grab all command line arguments
-    let mut args = std::env::args().skip(1);
+    // build the CLI and grab all argumentss
+    let args = cli::build().get_matches();
 
-    // grab the root bucket path of the S3 location to use
-    let root_paths = args.next().ok_or_else(|| "Bucket name not provided")?;
-    let mut splitn = root_paths.trim_left_matches("s3://").splitn(2, '/');
+    // parse the bucket argument
+    let mut splitn = args
+        .value_of("bucket")
+        .unwrap()
+        .trim_left_matches("s3://")
+        .splitn(2, '/');
 
     // bucket is required, prefix is optional after `/`
     let bucket = Cow::from(splitn.next().unwrap().to_string());
@@ -42,18 +46,12 @@ fn main() -> types::ConcatResult<()> {
             .to_string(),
     );
 
-    // fetch source/target
-    let source = args.next();
-    let target = args.next();
+    // unpack the dry run argument
+    let dryrun = args.is_present("dry");
 
-    // handle invalid command line args
-    if source.is_none() || target.is_none() {
-        return Err("Source/target not provided!".into());
-    }
-
-    // unwrap and compile the source regex
-    let source = Regex::new(&source.unwrap())?;
-    let target = Cow::from(target.unwrap());
+    // unwrap and compile the source regex (unwrap should be safe)
+    let source = Regex::new(&args.value_of("source").unwrap())?;
+    let target = Cow::from(args.value_of("target").unwrap());
 
     // create client options
     let client = HttpClient::new()?;
@@ -73,6 +71,7 @@ fn main() -> types::ConcatResult<()> {
     // construct uploads - this is separate to allow easy
     // handling of errors being returned (and cleanup)
     let result = construct_uploads(
+        dryrun,
         &s3,
         bucket.clone(),
         prefix,
@@ -81,6 +80,11 @@ fn main() -> types::ConcatResult<()> {
         &mut sources,
         &mut targets,
     );
+
+    // dry doesn't post-process
+    if dryrun {
+        return Ok(());
+    }
 
     // handle errors
     if result.is_err() {
@@ -201,6 +205,7 @@ fn main() -> types::ConcatResult<()> {
 /// This will populate the provided mappings, as they're using in the main
 /// function for error handling (this allows us to use ? in this function).
 fn construct_uploads<'a>(
+    dry: bool,
     s3: &S3Client,
     bucket: Cow<'a, str>,
     prefix: Cow<'a, str>,
@@ -259,6 +264,14 @@ fn construct_uploads<'a>(
                 continue;
             }
 
+            // log out exactly what we're concatenating right now
+            println!("Concatenating {} -> {}", key, full_target);
+
+            // skip
+            if dry {
+                continue;
+            }
+
             // ensure we have an upload identifier
             if !targets.contains_key(&full_target) {
                 // initialize the upload request as needed
@@ -284,9 +297,6 @@ fn construct_uploads<'a>(
 
             // retrieve the sources list for the upload_id
             let sources = sources.get_mut(&*upload_id).unwrap();
-
-            // log out exactly what we're moving right now
-            println!("Uploading {} -> {}", part_source, full_target);
 
             // create the copy request for the existing key
             let copy_request = UploadPartCopyRequest {
