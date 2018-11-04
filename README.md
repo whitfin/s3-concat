@@ -48,6 +48,28 @@ $ AWS_ACCESS_KEY_ID=MY_ACCESS_KEY_ID \
 
 In this case, all files in `2018/01/01/*` would be mapped to `2018-01-01.gz`. Don't forget to add single quotes around your expressions to avoid any pesky shell expansions!
 
+For any other functionality, check out the help menu (although this example below might be outdated):
+
+```shell
+$ s3-concat -h
+s3-concat 1.0.0
+Isaac Whitfield <iw@whitfin.io>
+Concatenate Amazon S3 files remotely using flexible patterns
+
+USAGE:
+    s3-concat [FLAGS] <bucket> <source> <target>
+
+FLAGS:
+    -d, --dry-run    Only print out the calculated writes
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <bucket>    An S3 bucket prefix to work within
+    <source>    A source pattern to use to locate files
+    <target>    A target pattern to use to concatenate files into
+```
+
 ## Limitations
 
 In order to concatenate files remotely (i.e. without pulling them to your machine), this tool uses the Multipart Upload API of S3. This means that all limitations of that API are inherited by this tool. Usually this is a non-issue, but one of the more noticable problems is that files smaller than 5MB cannot be concatenated. To avoid wasted AWS calls, this is currently caught in the client layer and will result in a client side error. Due to the complexity in working around this, it's currently unsupported to join files with a size smaller than 5MB.
