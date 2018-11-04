@@ -1,0 +1,24 @@
+[package]
+name = "s3-concat"
+version = "1.0.0"
+authors = ["Isaac Whitfield <iw@whitfin.io>"]
+description = "Concatenate Amazon S3 files remotely using flexible patterns"
+repository = "https://github.com/whitfin/s3-concat"
+keywords = ["aws", "amazon", "s3", "filesystem"]
+categories = ["command-line-utilities", "filesystem", "text-processing"]
+readme = "README.md"
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "whitfin/s3-concat" }
+
+[dependencies]
+clap = "2.32"
+env_logger = "0.5"
+quick-xml = "0.12"
+regex = "1.0"
+
+# AWS/S3 libraries
+rusoto_core = "0.35"
+rusoto_s3 = "0.35"
+
