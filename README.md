@@ -25,7 +25,7 @@ You can concatenate files in a basic manner just by providing a source pattern, 
 $ AWS_ACCESS_KEY_ID=MY_ACCESS_KEY_ID \
     AWS_SECRET_ACCESS_KEY=MY_SECRET_ACCESS_KEY \
     AWS_DEFAULT_REGION=us-west-2 \
-    s3-concat my.bucket.name archives/*.gz archive.gz
+    s3-concat my.bucket.name 'archives/*.gz' 'archive.gz'
 ```
 
 If the case you're working with long paths, you can add a prefix on the bucket name to avoid having to type it all out multiple times. In the following case, `*.gz` and `archive.gz` are relative to the `my/annoyingly/nested/path/` prefix.
