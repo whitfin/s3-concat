@@ -9,12 +9,20 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
 
-        // allow dry-run without execution
+        // allow dry-run
         .arg(
             Arg::with_name("dry")
                 .help("Only print out the calculated writes")
                 .short("d")
                 .long("dry-run")
+        )
+
+        // allow no logging
+        .arg(
+            Arg::with_name("quiet")
+                .help("Only prints errors during execution")
+                .short("q")
+                .long("quiet")
         )
 
         // bucket argument

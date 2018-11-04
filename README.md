@@ -62,6 +62,7 @@ USAGE:
 FLAGS:
     -d, --dry-run    Only print out the calculated writes
     -h, --help       Prints help information
+    -q, --quiet      Only prints errors during execution
     -V, --version    Prints version information
 
 ARGS:

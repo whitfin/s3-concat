@@ -1,4 +1,5 @@
 //! Types module for the main runtime, exposing error and result types.
+use logger::SetLoggerError;
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use rusoto_core::request;
@@ -45,6 +46,7 @@ macro_rules! derive_from {
 // Easy derivations of derive_from.
 derive_from!(&'a str);
 derive_from!(io::Error);
+derive_from!(SetLoggerError);
 derive_from!(regex::Error);
 derive_from!(request::TlsError);
 derive_from!(time::SystemTimeError);

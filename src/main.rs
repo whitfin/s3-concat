@@ -6,7 +6,8 @@
 //! Credentials must be provided via guidelines in the [AWS Documentation]
 //! (https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 extern crate clap;
-extern crate env_logger;
+#[macro_use]
+extern crate log as logger;
 extern crate quick_xml;
 extern crate regex;
 extern crate rusoto_core;
@@ -20,14 +21,15 @@ use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
 mod cli;
+mod log;
 mod types;
 
 fn main() -> types::ConcatResult<()> {
-    // initialize for rusoto
-    env_logger::init();
-
     // build the CLI and grab all argumentss
     let args = cli::build().get_matches();
+
+    // initialize logging
+    log::init(&args)?;
 
     // parse the bucket argument
     let mut splitn = args
@@ -105,7 +107,7 @@ fn main() -> types::ConcatResult<()> {
     // attempt to complete all requests
     for (key, upload_id) in targets {
         // log out to be user friendly...
-        println!("Completing {}...", upload_id);
+        info!("Completing {}...", upload_id);
 
         // create a request to list parts buffer
         let parts = ListPartsRequest {
@@ -121,7 +123,7 @@ fn main() -> types::ConcatResult<()> {
         // attempt to list the pending parts
         if let Err(err) = parts_result {
             // if we can't list the parts, tell the user to help out
-            eprintln!("Unable to list pending parts for {}: {}", upload_id, err);
+            error!("Unable to list pending parts for {}: {}", upload_id, err);
 
             // gotta abort
             abort_request(
@@ -180,7 +182,7 @@ fn main() -> types::ConcatResult<()> {
         // iterate all concat'ed
         for key in keys {
             // print that we're removing
-            println!("Removing {}...", key);
+            info!("Removing {}...", key);
 
             // create the removal request
             let delete = DeleteObjectRequest {
@@ -191,7 +193,7 @@ fn main() -> types::ConcatResult<()> {
 
             // attemp to remove the objects from S3
             if let Err(_) = s3.delete_object(delete).sync() {
-                eprintln!("Unable to remove {}", key);
+                error!("Unable to remove {}", key);
             }
         }
     }
@@ -265,7 +267,7 @@ fn construct_uploads<'a>(
             }
 
             // log out exactly what we're concatenating right now
-            println!("Concatenating {} -> {}", key, full_target);
+            info!("Concatenating {} -> {}", key, full_target);
 
             // skip
             if dry {
@@ -333,7 +335,7 @@ fn construct_uploads<'a>(
 /// to construct the part request, or the inability to complete the multi request.
 fn abort_request(s3: &S3Client, key: String, bucket: String, upload_id: String) {
     // print that it's being aborted
-    eprintln!("Aborting {}...", upload_id);
+    error!("Aborting {}...", upload_id);
 
     // create the main abort request
     let abort = AbortMultipartUploadRequest {
@@ -345,6 +347,6 @@ fn abort_request(s3: &S3Client, key: String, bucket: String, upload_id: String) 
 
     // attempt to abort each request, log on fail (can't short circut)
     if let Err(_) = s3.abort_multipart_upload(abort).sync() {
-        eprintln!("Unable to abort: {}", upload_id);
+        error!("Unable to abort: {}", upload_id);
     }
 }
