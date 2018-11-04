@@ -9,6 +9,14 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
 
+        // cleanup source files
+        .arg(
+            Arg::with_name("cleanup")
+                .help("Removes source files after concatenation")
+                .short("c")
+                .long("cleanup")
+        )
+
         // allow dry-run
         .arg(
             Arg::with_name("dry")

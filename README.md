@@ -60,6 +60,7 @@ USAGE:
     s3-concat [FLAGS] <bucket> <source> <target>
 
 FLAGS:
+    -c, --cleanup    Removes source files after concatenation
     -d, --dry-run    Only print out the calculated writes
     -h, --help       Prints help information
     -q, --quiet      Only prints errors during execution

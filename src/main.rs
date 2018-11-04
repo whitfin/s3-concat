@@ -177,6 +177,11 @@ fn main() -> types::ConcatResult<()> {
         }
     }
 
+    // only cleanup when explicit
+    if !args.is_present("cleanup") {
+        return result;
+    }
+
     // iterate all upload sources
     for keys in sources.values() {
         // iterate all concat'ed
