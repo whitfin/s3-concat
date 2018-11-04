@@ -5,27 +5,27 @@ use rusoto_core::request;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::{io, time};
 
-/// Public type alias for a result with a `ConcatResult` error type.
-pub type ConcatResult<T> = Result<T, ConcatResult>;
+/// Public type alias for a result with a `ConcatError` error type.
+pub type ConcatResult<T> = Result<T, ConcatError>;
 
 /// Delegating error wrapper for errors raised by the main archive.
 ///
 /// The internal `String` representation enables cheap coercion from
 /// other error types by binding their error messages through. This
 /// is somewhat similar to the `failure` crate, but minimal.
-pub struct ConcatResult(String);
+pub struct ConcatError(String);
 
-/// Debug implementation for `ConcatResult`.
-impl Debug for ConcatResult {
-    /// Formats an `ConcatResult` by delegating to `Display`.
+/// Debug implementation for `ConcatError`.
+impl Debug for ConcatError {
+    /// Formats an `ConcatError` by delegating to `Display`.
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         Display::fmt(self, f)
     }
 }
 
-/// Display implementation for `ConcatResult`.
-impl Display for ConcatResult {
-    /// Formats an `ConcatResult` by writing out the inner representation.
+/// Display implementation for `ConcatError`.
+impl Display for ConcatError {
+    /// Formats an `ConcatError` by writing out the inner representation.
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -34,9 +34,9 @@ impl Display for ConcatResult {
 /// Macro to implement `From` for provided types.
 macro_rules! derive_from {
     ($type:ty) => {
-        impl<'a> From<$type> for ConcatResult {
-            fn from(t: $type) -> ConcatResult {
-                ConcatResult(t.to_string())
+        impl<'a> From<$type> for ConcatError {
+            fn from(t: $type) -> ConcatError {
+                ConcatError(t.to_string())
             }
         }
     };
@@ -53,9 +53,9 @@ derive_from!(String);
 /// Macro to implement `From` for Rusoto types.
 macro_rules! derive_from_rusoto {
     ($type:ty) => {
-        impl From<$type> for ConcatResult {
-            /// Converts a Rusoto error to a `ConcatResult`.
-            fn from(err: $type) -> ConcatResult {
+        impl From<$type> for ConcatError {
+            /// Converts a Rusoto error to a `ConcatError`.
+            fn from(err: $type) -> ConcatError {
                 // grab the raw conversion
                 let msg = err.to_string();
 
@@ -73,7 +73,7 @@ macro_rules! derive_from_rusoto {
 
                             // if we find a message tag, we'll use that as the error
                             Ok(Event::Start(ref e)) if e.name() == b"Message" => {
-                                return ConcatResult(
+                                return ConcatError(
                                     reader
                                         .read_text(b"Message", &mut Vec::new())
                                         .expect("Cannot decode text value"),
@@ -89,7 +89,7 @@ macro_rules! derive_from_rusoto {
                 }
 
                 // default msg
-                ConcatResult(msg)
+                ConcatError(msg)
             }
         }
     };
@@ -106,7 +106,7 @@ derive_from_rusoto!(rusoto_s3::UploadPartCopyError);
 
 #[cfg(test)]
 mod tests {
-    use super::ConcatResult;
+    use super::ConcatError;
     use rusoto_core::credential::CredentialsError;
     use rusoto_s3::ListObjectsV2Error;
     use std::io::{Error, ErrorKind};
@@ -115,7 +115,7 @@ mod tests {
     fn converting_io_to_error() {
         let message = "My fake access key failed message";
         let io_errs = Error::new(ErrorKind::Other, message);
-        let convert = ConcatResult::from(io_errs);
+        let convert = ConcatError::from(io_errs);
 
         assert_eq!(convert.0, message);
     }
@@ -134,7 +134,7 @@ mod tests {
 
         let creds_err = CredentialsError::new(xml_err);
         let lists_err = ListObjectsV2Error::Credentials(creds_err);
-        let converted = ConcatResult::from(lists_err);
+        let converted = ConcatError::from(lists_err);
 
         assert_eq!(converted.0, message);
     }
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn converting_string_to_error() {
         let message = "My fake access key failed message".to_string();
-        let convert = ConcatResult::from(message.clone());
+        let convert = ConcatError::from(message.clone());
 
         assert_eq!(convert.0, message);
     }
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn converting_str_to_error() {
         let message = "My fake access key failed message";
-        let convert = ConcatResult::from(message);
+        let convert = ConcatError::from(message);
 
         assert_eq!(convert.0, message);
     }
