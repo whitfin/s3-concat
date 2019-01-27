@@ -1,7 +1,7 @@
 # S3 Concat
 [![Crates.io](https://img.shields.io/crates/v/s3-concat.svg)](https://crates.io/crates/s3-concat) [![Build Status](https://img.shields.io/travis/whitfin/s3-concat.svg)](https://travis-ci.org/whitfin/s3-concat)
 
-A small utility to concatenate files in AWS S3. Design to be simple and quick, this tool uses the Multipart Upload API provided by AWS to concatenate files. This avoids the need to download files to the local machines, although it does come with caveats. S3 interaction is controlled by [rusoto_s3](https://crates.io/crates/rusoto_s3), so check out those docs for authorization practices.
+A small utility to concatenate files in AWS S3. Designed to be simple and quick, this tool uses the Multipart Upload API provided by AWS to concatenate files. This avoids the need to download files to the local machines, although it does come with caveats. S3 interaction is controlled by [rusoto_s3](https://crates.io/crates/rusoto_s3), so check out those docs for authorization practices.
 
 ## Installation
 
@@ -74,4 +74,4 @@ ARGS:
 
 ## Limitations
 
-In order to concatenate files remotely (i.e. without pulling them to your machine), this tool uses the Multipart Upload API of S3. This means that all limitations of that API are inherited by this tool. Usually this is a non-issue, but one of the more noticable problems is that files smaller than 5MB cannot be concatenated. To avoid wasted AWS calls, this is currently caught in the client layer and will result in a client side error. Due to the complexity in working around this, it's currently unsupported to join files with a size smaller than 5MB.
+In order to concatenate files remotely (i.e. without pulling them to your machine), this tool uses the Multipart Upload API of S3. This means that all limitations of that API are inherited by this tool. Usually, this isn't an issue, but one of the more noticeable problems is that files smaller than 5MB cannot be concatenated. To avoid wasted AWS calls, this is currently caught in the client layer and will result in a client side error. Due to the complexity in working around this, it's currently unsupported to join files with a size smaller than 5MB.
