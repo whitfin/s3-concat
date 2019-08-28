@@ -1,6 +1,6 @@
 [package]
 name = "s3-concat"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Isaac Whitfield <iw@whitfin.io>"]
 description = "Concatenate Amazon S3 files remotely using flexible patterns"
 repository = "https://github.com/whitfin/s3-concat"
