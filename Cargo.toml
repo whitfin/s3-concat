@@ -8,17 +8,18 @@ keywords = ["aws", "amazon", "s3", "filesystem"]
 categories = ["command-line-utilities", "filesystem", "text-processing"]
 readme = "README.md"
 license = "MIT"
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "whitfin/s3-concat" }
 
 [dependencies]
-clap = "2.32"
+clap = "2.33"
 log = { version = "0.4", features = ["std"] }
-quick-xml = "0.12"
-regex = "1.0"
+quick-xml = "0.16"
+regex = "1.2"
 
 # AWS/S3 libraries
-rusoto_core = "0.35"
-rusoto_s3 = "0.35"
+rusoto_core = "0.40"
+rusoto_s3 = "0.40"
 

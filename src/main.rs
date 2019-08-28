@@ -5,13 +5,8 @@
 //!
 //! Credentials must be provided via guidelines in the [AWS Documentation]
 //! (https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
-extern crate clap;
 #[macro_use]
 extern crate log as logger;
-extern crate quick_xml;
-extern crate regex;
-extern crate rusoto_core;
-extern crate rusoto_s3;
 
 use regex::Regex;
 use rusoto_core::{credential::ChainProvider, region::Region, HttpClient};
@@ -35,7 +30,7 @@ fn main() -> types::ConcatResult<()> {
     let mut splitn = args
         .value_of("bucket")
         .unwrap()
-        .trim_left_matches("s3://")
+        .trim_start_matches("s3://")
         .splitn(2, '/');
 
     // bucket is required, prefix is optional after `/`
@@ -44,7 +39,7 @@ fn main() -> types::ConcatResult<()> {
         splitn
             .next()
             .unwrap_or("")
-            .trim_right_matches('/')
+            .trim_end_matches('/')
             .to_string(),
     );
 
@@ -146,7 +141,8 @@ fn main() -> types::ConcatResult<()> {
             .map(|part| CompletedPart {
                 e_tag: part.e_tag,
                 part_number: part.part_number,
-            }).collect();
+            })
+            .collect();
 
         // create our multipart completion body
         let multipart = CompletedMultipartUpload {
@@ -163,7 +159,7 @@ fn main() -> types::ConcatResult<()> {
         };
 
         // attempt to complete each request, abort on fail (can't short circut)
-        if let Err(_) = s3.complete_multipart_upload(complete).sync() {
+        if s3.complete_multipart_upload(complete).sync().is_err() {
             // remove the upload sources
             sources.remove(&key);
 
@@ -197,7 +193,7 @@ fn main() -> types::ConcatResult<()> {
             };
 
             // attemp to remove the objects from S3
-            if let Err(_) = s3.delete_object(delete).sync() {
+            if s3.delete_object(delete).sync().is_err() {
                 error!("Unable to remove {}", key);
             }
         }
@@ -256,7 +252,7 @@ fn construct_uploads<'a>(
             }
 
             // AWS doesn't let us concat < 5MB
-            if entry.size.unwrap() < 5000000 {
+            if entry.size.unwrap() < 5_000_000 {
                 return Err(format!("Unable to concat files below 5MB: {}", key).into());
             }
 
@@ -323,7 +319,7 @@ fn construct_uploads<'a>(
         }
 
         // break if there's no way to continue
-        if let None = response.next_continuation_token {
+        if response.next_continuation_token.is_none() {
             break;
         }
 
@@ -351,7 +347,7 @@ fn abort_request(s3: &S3Client, key: String, bucket: String, upload_id: String) 
     };
 
     // attempt to abort each request, log on fail (can't short circut)
-    if let Err(_) = s3.abort_multipart_upload(abort).sync() {
+    if s3.abort_multipart_upload(abort).sync().is_err() {
         error!("Unable to abort: {}", upload_id);
     }
 }

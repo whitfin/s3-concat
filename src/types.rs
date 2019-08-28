@@ -55,9 +55,9 @@ derive_from!(String);
 /// Macro to implement `From` for Rusoto types.
 macro_rules! derive_from_rusoto {
     ($type:ty) => {
-        impl From<$type> for ConcatError {
+        impl From<rusoto_core::RusotoError<$type>> for ConcatError {
             /// Converts a Rusoto error to a `ConcatError`.
-            fn from(err: $type) -> ConcatError {
+            fn from(err: rusoto_core::RusotoError<$type>) -> ConcatError {
                 // grab the raw conversion
                 let msg = err.to_string();
 
@@ -109,8 +109,6 @@ derive_from_rusoto!(rusoto_s3::UploadPartCopyError);
 #[cfg(test)]
 mod tests {
     use super::ConcatError;
-    use rusoto_core::credential::CredentialsError;
-    use rusoto_s3::ListObjectsV2Error;
     use std::io::{Error, ErrorKind};
 
     #[test]
@@ -120,25 +118,6 @@ mod tests {
         let convert = ConcatError::from(io_errs);
 
         assert_eq!(convert.0, message);
-    }
-
-    #[test]
-    fn converting_rusoto_to_error() {
-        let message = "My fake access key failed message".to_string();
-        let xml_err = format!(
-            r#"<?xml version="1.0" encoding="UTF-8"?>
-                <Error>
-                    <Code>InvalidAccessKeyId</Code>
-                    <Message>{}</Message>
-                </Error>"#,
-            message
-        );
-
-        let creds_err = CredentialsError::new(xml_err);
-        let lists_err = ListObjectsV2Error::Credentials(creds_err);
-        let converted = ConcatError::from(lists_err);
-
-        assert_eq!(converted.0, message);
     }
 
     #[test]
