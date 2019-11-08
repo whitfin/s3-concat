@@ -1,6 +1,8 @@
 # S3 Concat
 [![Crates.io](https://img.shields.io/crates/v/s3-concat.svg)](https://crates.io/crates/s3-concat) [![Build Status](https://img.shields.io/travis/whitfin/s3-concat.svg)](https://travis-ci.org/whitfin/s3-concat)
 
+**This tool has been migrated into [s3-utils](https://github.com/whitfin/s3-utils), please use that crate for future updates.**
+
 A small utility to concatenate files in AWS S3. Designed to be simple and quick, this tool uses the Multipart Upload API provided by AWS to concatenate files. This avoids the need to download files to the local machines, although it does come with caveats. S3 interaction is controlled by [rusoto_s3](https://crates.io/crates/rusoto_s3), so check out those docs for authorization practices.
 
 ## Installation
