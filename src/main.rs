@@ -207,6 +207,7 @@ fn main() -> types::ConcatResult<()> {
 ///
 /// This will populate the provided mappings, as they're using in the main
 /// function for error handling (this allows us to use ? in this function).
+#[allow(clippy::too_many_arguments)]
 fn construct_uploads<'a>(
     dry: bool,
     s3: &S3Client,
@@ -340,8 +341,8 @@ fn abort_request(s3: &S3Client, key: String, bucket: String, upload_id: String) 
 
     // create the main abort request
     let abort = AbortMultipartUploadRequest {
-        key: key.to_string(),
-        bucket: bucket.to_string(),
+        key,
+        bucket,
         upload_id: upload_id.to_string(),
         ..AbortMultipartUploadRequest::default()
     };

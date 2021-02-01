@@ -8,31 +8,27 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
-
         // cleanup source files
         .arg(
             Arg::with_name("cleanup")
                 .help("Removes source files after concatenation")
                 .short("c")
-                .long("cleanup")
+                .long("cleanup"),
         )
-
         // allow dry-run
         .arg(
             Arg::with_name("dry")
                 .help("Only print out the calculated writes")
                 .short("d")
-                .long("dry-run")
+                .long("dry-run"),
         )
-
         // allow no logging
         .arg(
             Arg::with_name("quiet")
                 .help("Only prints errors during execution")
                 .short("q")
-                .long("quiet")
+                .long("quiet"),
         )
-
         // bucket argument
         .arg(
             Arg::with_name("bucket")
@@ -40,7 +36,6 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
                 .index(1)
                 .required(true),
         )
-
         // source argument
         .arg(
             Arg::with_name("source")
@@ -48,7 +43,6 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
                 .index(2)
                 .required(true),
         )
-
         // target argument
         .arg(
             Arg::with_name("target")
@@ -56,7 +50,6 @@ pub fn build<'a, 'b>() -> App<'a, 'b> {
                 .index(3)
                 .required(true),
         )
-
         // settings required for parsing
         .settings(&[
             AppSettings::ArgRequiredElseHelp,
