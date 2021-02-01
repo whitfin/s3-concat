@@ -1,5 +1,5 @@
 # S3 Concat
-[![Crates.io](https://img.shields.io/crates/v/s3-concat.svg)](https://crates.io/crates/s3-concat) [![Build Status](https://img.shields.io/travis/whitfin/s3-concat.svg)](https://travis-ci.org/whitfin/s3-concat)
+[![Crates.io](https://img.shields.io/crates/v/s3-concat.svg)](https://crates.io/crates/s3-concat) [![Build Status](https://img.shields.io/github/workflow/status/whitfin/s3-concat/CI)](https://github.com/whitfin/s3-concat/actions)
 
 **This tool has been migrated into [s3-utils](https://github.com/whitfin/s3-utils), please use that crate for future updates.**
 
